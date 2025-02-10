@@ -873,3 +873,7 @@ function setInstanceTileReference(instance, id, src, colorReplacements) {
 }
 
 requestAnimationFrame(globalRender);
+
+export default {
+    getInstance
+};
