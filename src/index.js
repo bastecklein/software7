@@ -54,6 +54,14 @@ class Software7Engine {
         this.loopFunction = options.onLoop || null;
     }
 
+    destroy() {
+        delete modeInstances[this.id];
+
+        for (const camera of this.cameras) {
+            camera.holder.innerHTML = "";
+        }
+    }
+
     addCamera(holder, tag) {
         const camera = new Software7Camera(holder, tag);
         this.cameras.push(camera);
