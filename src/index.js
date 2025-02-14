@@ -1,4 +1,4 @@
-import { guid, getColoredSVG } from "common-helpers";
+import { guid, getColoredSVG, hash } from "common-helpers";
 import pppTools from "ppp-tools";
 
 window.addEventListener("resize", onResize);
@@ -79,15 +79,9 @@ class Software7Engine {
             return;
         }
 
-        const texName = getTextureName(url, null);
+        const texture = getTexture(url, null);
 
-        if(!globalTextures[texName]) {
-            globalTextures[texName] = new Texture({
-                url: url
-            });
-        }
-
-        instance.oversky = texName;
+        instance.oversky = texture.name;
     }
 
     setUndersky(url) {
@@ -99,20 +93,9 @@ class Software7Engine {
             return;
         }
 
-        const texName = getTextureName(url, null);
+        const texture = getTexture(url, null);
 
-        if(globalTextures[texName]) {
-            setBackgroundColorFromTexture(instance, globalTextures[texName], true);
-        } else {
-            globalTextures[texName] = new Texture({
-                url: url,
-                onLoad: function(texture) {
-                    setBackgroundColorFromTexture(instance, texture, true);
-                }
-            });
-        }
-
-        instance.undersky = texName;
+        instance.undersky = texture.name;
     }
 
     setSky(url) {
@@ -125,15 +108,9 @@ class Software7Engine {
             return;
         }
 
-        const texName = getTextureName(url, null);
+        const texture = getTexture(url, null);
 
-        if(!globalTextures[texName]) {
-            globalTextures[texName] = new Texture({
-                url: url
-            });
-        }
-
-        instance.sky = texName;
+        instance.sky = texture.name;
     }
 
     setGround(url) {
@@ -146,15 +123,9 @@ class Software7Engine {
             return;
         }
 
-        const texName = getTextureName(url, null);
+        const texture = getTexture(url, null);
 
-        if(!globalTextures[texName]) {
-            globalTextures[texName] = new Texture({
-                url: url
-            });
-        }
-
-        instance.ground = texName;
+        instance.ground = texture.name;
     }
 
     setTrack(url) {
@@ -167,15 +138,9 @@ class Software7Engine {
             return;
         }
 
-        const texName = getTextureName(url, null);
+        const texture = getTexture(url, null);
 
-        if(!globalTextures[texName]) {
-            globalTextures[texName] = new Texture({
-                url: url
-            });
-        }
-
-        instance.track = texName;
+        instance.track = texture.name;
     }
 
     setTile(data) {
@@ -288,16 +253,10 @@ class Sprite {
         this.scaleX = options.scaleX || options.scale || 0.16;
         this.scaleY = options.scaleY || options.scale || 0.16;
 
-        const texName = getTextureName(options.src, null);
-
-        if(!globalTextures[texName]) {
-            globalTextures[texName] = new Texture({
-                url: options.src
-            });
-        }
+        const texture = getTexture(options.src, null);
 
         this.frame = -1;
-        this.texture = texName;
+        this.texture = texture.name;
 
         this.instance = options.instance || null;
     }
@@ -339,6 +298,12 @@ class TextureFrame {
 }
 
 function loadTexture(texture) {
+
+    if(typeof texture.url == "object" && texture.url.createdApp && texture.url.createdApp == "Pixel Paint") {
+        loadPixelPaintTexture(texture);
+        return;
+    }
+
     if(texture.url.toLowerCase().endsWith(".ppp")) {
         loadPixelPaintTexture(texture);
         return;
@@ -738,8 +703,12 @@ function setImageDataColorAtCoordinate(data, x, y, color) {
     data.data[index + 3] = color.a;
 }
 
-function getTextureName(url, colorReplacements) {
+export function getTextureName(url, colorReplacements) {
     let name = url;
+
+    if(typeof name == "object" && name.createdApp && name.createdApp == "Pixel Paint") {
+        name = hash(JSON.stringify(name));
+    }
 
     if(colorReplacements && colorReplacements.length > 0) {
         for(let i = 0; i < colorReplacements.length; i++) {
@@ -868,20 +837,28 @@ function setInstanceTileReference(instance, id, src, colorReplacements) {
         instance.tileReference = {};
     }
 
-    const texName = getTextureName(src, colorReplacements);
+    const texture = getTexture(src, colorReplacements);
+
+    instance.tileReference[id] = texture.name;
+}
+
+export function getTexture(url, colorReplacements) {
+    const texName = getTextureName(url, colorReplacements);
 
     if(!globalTextures[texName]) {
         globalTextures[texName] = new Texture({
-            url: src,
+            url: url,
             colorReplacements: colorReplacements
         });
     }
 
-    instance.tileReference[id] = texName;
+    return globalTextures[texName];
 }
 
 requestAnimationFrame(globalRender);
 
 export default {
-    getInstance
+    getInstance,
+    getTexture,
+    getTextureName
 };
