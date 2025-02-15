@@ -7,7 +7,7 @@ const π = Math.PI;
 const MAX_ANGLE = 2 * π;
 const BASE_CAMERA_WIDTH = 320.0;
 const BASE_CAMERA_SCALE = 300.0;
-const PPP_SCALE = 1;
+const PPP_SCALE = 16;
 const DEF_TILE_SIZE = 8;
 const TARGET_DELTA = 1000 / 30;
 const FRAME_INCREMENT_TICKS = 5;
@@ -662,6 +662,18 @@ function renderCameraGround(instance, camera, outputData, dirX, dirY, horizon) {
 
                         if(texture && texture.loaded) {
 
+                            const sw = texture.width / instance.tileSize;
+                            const sh = texture.height / instance.tileSize;
+
+                            const tileX = (x % instance.tileSize) * sw;
+                            const tileY = (y % instance.tileSize) * sh;
+
+                            /*
+                            const tx = Math.floor((tileX / instance.tileSize) * texture.width);
+                            const ty = Math.floor((tileY / instance.tileSize) * texture.height);
+
+
+
                             let tx = Math.floor((x * texture.width) % texture.width);
                             let ty = Math.floor((y * texture.height) % texture.height);
 
@@ -679,10 +691,10 @@ function renderCameraGround(instance, camera, outputData, dirX, dirY, horizon) {
 
                             if(ty > texture.height) {
                                 ty -= texture.height;
-                            }
+                            }*/
 
-                            const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, x % instance.tileSize, y % instance.tileSize);
-                            //const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, tx, ty);
+                            //const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, x % instance.tileSize, y % instance.tileSize);
+                            const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, tileX, tileY);
                             setImageDataColorAtCoordinate(outputData, screenX, screenY, texel);
 
                             if(texel.a == 255) {
