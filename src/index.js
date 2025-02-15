@@ -655,33 +655,14 @@ function renderCameraGround(instance, camera, outputData, dirX, dirY, horizon) {
                         const texture = globalTextures[txName];
 
                         if(texture && texture.loaded) {
-                            //painted = renderGroundAtPosition(instance, texture, outputData, x, y);
-
-                            const sw = texture.width / instance.tileSize;
-                            const sh = texture.height / instance.tileSize;
-
-                            let tileX = (x % instance.tileSize) * sw;
-                            let tileY = (y % instance.tileSize) * sh;
-                            if(tileX < 0) {
-                                tileX += texture.width;
-                            }
-                            if(tileY < 0) {
-                                tileY += texture.height;
-                            }
-
-                            const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, tileX, tileY);
-                            setImageDataColorAtCoordinate(outputData, screenX, screenY, texel);
-
-                            if(texel.a == 255) {
-                                painted = true;
-                            }
+                            painted = renderGroundAtPosition(instance, texture, outputData, screenX, screenY);
                         }
                     }
                 }
             }
 
             if(groundTex && groundTex.loaded && !painted) {
-                renderGroundAtPosition(instance, groundTex, outputData, x, y);
+                renderGroundAtPosition(instance, groundTex, outputData, screenX, screenY);
             }
 
             spaceX += dx;
@@ -878,7 +859,7 @@ function renderGroundAtPosition(instance, texture, outputData, x, y) {
     }
 
     const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, tileX, tileY);
-    setImageDataColorAtCoordinate(outputData, screenX, screenY, texel);
+    setImageDataColorAtCoordinate(outputData, x, y, texel);
 
     if(texel.a == 255) {
         return true;
