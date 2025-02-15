@@ -113,7 +113,7 @@ class Software7Engine {
         instance.sky = texture.name;
     }
 
-    setGround(url) {
+    setGround(url, colorReplacements = null) {
         const instance = this;
 
         instance.ground = null;
@@ -123,7 +123,7 @@ class Software7Engine {
             return;
         }
 
-        const texture = getTexture(url, null);
+        const texture = getTexture(url, colorReplacements);
 
         instance.ground = texture.name;
     }
@@ -661,7 +661,8 @@ function renderCameraGround(instance, camera, outputData, dirX, dirY, horizon) {
                         const texture = globalTextures[txName];
 
                         if(texture && texture.loaded) {
-                            const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, x % instance.tileSize, y % instance.tileSize);
+                            //const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, x % instance.tileSize, y % instance.tileSize);
+                            const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, x % texture.width, y % texture.height);
                             setImageDataColorAtCoordinate(outputData, screenX, screenY, texel);
 
                             if(texel.a == 255) {
