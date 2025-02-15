@@ -601,8 +601,6 @@ function renderSky(camera, skyTx, skyHeight, curRotationPercent, isFixed) {
 function renderCameraGround(instance, camera, outputData, dirX, dirY, horizon) {
 
     let groundTex = null;
-    let groundData = null;
-
     let trackTex = null;
     let trackData = null;
 
@@ -616,10 +614,6 @@ function renderCameraGround(instance, camera, outputData, dirX, dirY, horizon) {
 
     if(instance.ground) {
         groundTex = globalTextures[instance.ground];
-
-        if(groundTex && groundTex.loaded) {
-            groundData = groundTex.images[groundTex.currentFrame].data;
-        }
     }
 
     for(let screenY = horizon + 1; screenY < camera.height; screenY++) {
@@ -661,35 +655,14 @@ function renderCameraGround(instance, camera, outputData, dirX, dirY, horizon) {
                         const texture = globalTextures[txName];
 
                         if(texture && texture.loaded) {
-
-                            const sw = texture.width / instance.tileSize;
-                            const sh = texture.height / instance.tileSize;
-
-                            let tileX = (x % instance.tileSize) * sw;
-                            let tileY = (y % instance.tileSize) * sh;
-
-                            if(tileX < 0) {
-                                tileX += texture.width;
-                            }
-
-                            if(tileY < 0) {
-                                tileY += texture.height;
-                            }
-
-                            const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, tileX, tileY);
-                            setImageDataColorAtCoordinate(outputData, screenX, screenY, texel);
-
-                            if(texel.a == 255) {
-                                painted = true;
-                            }
+                            painted = renderGroundAtPosition(instance, texture, outputData, x, y);
                         }
                     }
                 }
             }
 
-            if(groundData && !painted) {
-                const texel = getColorAtImageDataPoint(groundData, x % groundTex.width, y % groundTex.height);
-                setImageDataColorAtCoordinate(outputData, screenX, screenY, texel);
+            if(groundTex && groundTex.loaded && !painted) {
+                renderGroundAtPosition(instance, groundTex, outputData, x, y);
             }
 
             spaceX += dx;
@@ -868,6 +841,31 @@ export function getTexture(url, colorReplacements) {
     }
 
     return globalTextures[texName];
+}
+
+function renderGroundAtPosition(instance, texture, outputData, x, y) {
+    const sw = texture.width / instance.tileSize;
+    const sh = texture.height / instance.tileSize;
+
+    let tileX = (x % instance.tileSize) * sw;
+    let tileY = (y % instance.tileSize) * sh;
+
+    if(tileX < 0) {
+        tileX += texture.width;
+    }
+
+    if(tileY < 0) {
+        tileY += texture.height;
+    }
+
+    const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, tileX, tileY);
+    setImageDataColorAtCoordinate(outputData, screenX, screenY, texel);
+
+    if(texel.a == 255) {
+        return true;
+    }
+
+    return false;
 }
 
 requestAnimationFrame(globalRender);
