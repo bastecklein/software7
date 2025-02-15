@@ -655,7 +655,26 @@ function renderCameraGround(instance, camera, outputData, dirX, dirY, horizon) {
                         const texture = globalTextures[txName];
 
                         if(texture && texture.loaded) {
-                            painted = renderGroundAtPosition(instance, texture, outputData, x, y);
+                            //painted = renderGroundAtPosition(instance, texture, outputData, x, y);
+
+                            const sw = texture.width / instance.tileSize;
+                            const sh = texture.height / instance.tileSize;
+
+                            let tileX = (x % instance.tileSize) * sw;
+                            let tileY = (y % instance.tileSize) * sh;
+                            if(tileX < 0) {
+                                tileX += texture.width;
+                            }
+                            if(tileY < 0) {
+                                tileY += texture.height;
+                            }
+
+                            const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, tileX, tileY);
+                            setImageDataColorAtCoordinate(outputData, screenX, screenY, texel);
+
+                            if(texel.a == 255) {
+                                painted = true;
+                            }
                         }
                     }
                 }
