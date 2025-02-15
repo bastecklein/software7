@@ -655,14 +655,14 @@ function renderCameraGround(instance, camera, outputData, dirX, dirY, horizon) {
                         const texture = globalTextures[txName];
 
                         if(texture && texture.loaded) {
-                            painted = renderGroundAtPosition(instance, texture, outputData, screenX, screenY);
+                            painted = renderGroundAtPosition(instance, texture, outputData, x, y, screenX, screenY);
                         }
                     }
                 }
             }
 
             if(groundTex && groundTex.loaded && !painted) {
-                renderGroundAtPosition(instance, groundTex, outputData, screenX, screenY);
+                renderGroundAtPosition(instance, groundTex, outputData, x, y, screenX, screenY);
             }
 
             spaceX += dx;
@@ -843,7 +843,7 @@ export function getTexture(url, colorReplacements) {
     return globalTextures[texName];
 }
 
-function renderGroundAtPosition(instance, texture, outputData, x, y) {
+function renderGroundAtPosition(instance, texture, outputData, x, y, screenX, screenY) {
     const sw = texture.width / instance.tileSize;
     const sh = texture.height / instance.tileSize;
 
@@ -859,7 +859,7 @@ function renderGroundAtPosition(instance, texture, outputData, x, y) {
     }
 
     const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, tileX, tileY);
-    setImageDataColorAtCoordinate(outputData, x, y, texel);
+    setImageDataColorAtCoordinate(outputData, screenX, screenY, texel);
 
     if(texel.a == 255) {
         return true;
