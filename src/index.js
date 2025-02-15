@@ -7,7 +7,7 @@ const π = Math.PI;
 const MAX_ANGLE = 2 * π;
 const BASE_CAMERA_WIDTH = 320.0;
 const BASE_CAMERA_SCALE = 300.0;
-const PPP_SCALE = 16;
+const PPP_SCALE = 1;
 const DEF_TILE_SIZE = 8;
 const TARGET_DELTA = 1000 / 30;
 const FRAME_INCREMENT_TICKS = 5;
@@ -681,8 +681,8 @@ function renderCameraGround(instance, camera, outputData, dirX, dirY, horizon) {
                                 ty -= texture.height;
                             }
 
-                            //const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, x % instance.tileSize, y % instance.tileSize);
-                            const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, tx, ty);
+                            const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, x % instance.tileSize, y % instance.tileSize);
+                            //const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, tx, ty);
                             setImageDataColorAtCoordinate(outputData, screenX, screenY, texel);
 
                             if(texel.a == 255) {
