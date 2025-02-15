@@ -665,8 +665,16 @@ function renderCameraGround(instance, camera, outputData, dirX, dirY, horizon) {
                             const sw = texture.width / instance.tileSize;
                             const sh = texture.height / instance.tileSize;
 
-                            const tileX = (x % instance.tileSize) * sw;
-                            const tileY = (y % instance.tileSize) * sh;
+                            let tileX = (x % instance.tileSize) * sw;
+                            let tileY = (y % instance.tileSize) * sh;
+
+                            if(tileX < 0) {
+                                tileX += texture.width;
+                            }
+
+                            if(tileY < 0) {
+                                tileY += texture.height;
+                            }
 
                             const texel = getColorAtImageDataPoint(texture.images[texture.currentFrame].data, tileX, tileY);
                             setImageDataColorAtCoordinate(outputData, screenX, screenY, texel);
