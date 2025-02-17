@@ -162,15 +162,18 @@ class Software7Engine {
         this.minTileZ = 0;
         this.maxTileZ = 0;
 
-        for(const tile of this.tileMap) {
-            if(tile.z < this.minTileZ) {
-                this.minTileZ = tile.z;
-            }
-
-            if(tile.z > this.maxTileZ) {
-                this.maxTileZ = tile.z;
+        if(this.tileMap) {
+            for(const tile of this.tileMap) {
+                if(tile.z < this.minTileZ) {
+                    this.minTileZ = tile.z;
+                }
+    
+                if(tile.z > this.maxTileZ) {
+                    this.maxTileZ = tile.z;
+                }
             }
         }
+        
     }
 
     setTileReference(data) {
