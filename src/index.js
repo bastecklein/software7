@@ -47,6 +47,8 @@ class Software7Engine {
         this.tileReference = {};
         this.tileMap = null;
         this.tileSize = DEF_TILE_SIZE;
+        this.minTileZ = 0;
+        this.maxTileZ = 0;
 
         this.cameras = [];
         this.sprites = [];
@@ -146,7 +148,7 @@ class Software7Engine {
     setTile(data) {
         if(Array.isArray(data)) {
             for(const tile of data) {
-                setInstanceTile(this, tile.x, tile.y, tile.id);
+                setInstanceTile(this, tile.x, tile.y, tile.z, tile.id);
             }
         } else {
             if(data == null) {
@@ -154,7 +156,20 @@ class Software7Engine {
                 return;
             }
 
-            setInstanceTile(this, data.x, data.y, data.id);
+            setInstanceTile(this, data.x, data.y, data.z, data.id);
+        }
+
+        this.minTileZ = 0;
+        this.maxTileZ = 0;
+
+        for(const tile of this.tileMap) {
+            if(tile.z < this.minTileZ) {
+                this.minTileZ = tile.z;
+            }
+
+            if(tile.z > this.maxTileZ) {
+                this.maxTileZ = tile.z;
+            }
         }
     }
 
@@ -646,19 +661,27 @@ function renderCameraGround(instance, camera, outputData, dirX, dirY, horizon) {
                 const tileX = Math.floor(x / instance.tileSize);
                 const tileY = Math.floor(y / instance.tileSize);
 
-                const tile = getTile(instance, tileX, tileY);
+                for(let uz = instance.maxTileZ; uz >= instance.minTileZ; uz--) {
+                    const tile = getTile(instance, tileX, tileY, uz);
 
-                if(tile) {
-                    const txName = instance.tileReference[tile];
-
-                    if(txName) {
-                        const texture = globalTextures[txName];
-
-                        if(texture && texture.loaded) {
-                            painted = renderGroundAtPosition(instance, texture, outputData, x, y, screenX, screenY);
+                    if(tile) {
+                        const txName = instance.tileReference[tile];
+    
+                        if(txName) {
+                            const texture = globalTextures[txName];
+    
+                            if(texture && texture.loaded) {
+                                painted = renderGroundAtPosition(instance, texture, outputData, x, y, screenX, screenY);
+                            }
                         }
                     }
+
+                    if(painted) {
+                        break;
+                    }
                 }
+
+                
             }
 
             if(groundTex && groundTex.loaded && !painted) {
@@ -804,20 +827,20 @@ function setBackgroundColorFromTexture(instance, texture, top) {
     instance.backgroundColor = `rgb(${avgR}, ${avgG}, ${avgB})`;
 }
 
-function getTile(instance, x, y) {
-    return instance.tileMap.get(getTilemapIndex(x, y));
+function getTile(instance, x, y, z) {
+    return instance.tileMap.get(getTilemapIndex(x, y, z));
 }
 
-function getTilemapIndex(x, y) {
-    return Math.floor(x) + ":" + Math.floor(y);
+function getTilemapIndex(x, y, z) {
+    return Math.floor(x) + ":" + Math.floor(y) + ":" + Math.floor(z);
 }
 
-function setInstanceTile(instance, x, y, texture) {
+function setInstanceTile(instance, x, y, z, texture) {
     if(!instance.tileMap) {
         instance.tileMap = new Map();
     }
 
-    instance.tileMap.set(getTilemapIndex(x, y), texture);
+    instance.tileMap.set(getTilemapIndex(x, y, z), texture);
 }
 
 function setInstanceTileReference(instance, id, src, colorReplacements) {
