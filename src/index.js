@@ -162,35 +162,30 @@ class Software7Engine {
         this.minTileZ = 0;
         this.maxTileZ = 0;
 
-
         if(this.tileMap) {
 
             const instance = this;
 
-            this.tileMap.forEach(function(value) {
+            this.tileMap.forEach(function(value, key) {
 
-                console.log(value);
+                const parts = key.split(":");
 
-                if(value.z < instance.minTileZ) {
-                    instance.minTileZ = value.z;
+                if(parts.length != 3) {
+                    return;
+                }
+
+                const z = parseInt(parts[2]);
+
+                if(z < instance.minTileZ) {
+                    instance.minTileZ = z;
                 }
     
-                if(value.z > instance.maxTileZ) {
-                    instance.maxTileZ = value.z;
+                if(z > instance.maxTileZ) {
+                    instance.maxTileZ = z;
                 }
             });
         }
 
-        if(isNaN(this.minTileZ)) {
-            this.minTileZ = 0;
-        }
-
-        if(isNaN(this.maxTileZ)) {
-            this.maxTileZ = 0;
-        }
-
-        console.log(this.minTileZ);
-        console.log(this.maxTileZ);
     }
 
     setTileReference(data) {
