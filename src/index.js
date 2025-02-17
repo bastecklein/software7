@@ -162,7 +162,23 @@ class Software7Engine {
         this.minTileZ = 0;
         this.maxTileZ = 0;
 
+
         if(this.tileMap) {
+
+            const instance = this;
+
+            this.tileMap.forEach(function(value, key) {
+                if(value.z < instance.minTileZ) {
+                    instance.minTileZ = value.z;
+                }
+    
+                if(value.z > instance.maxTileZ) {
+                    instance.maxTileZ = value.z;
+                }
+            });
+
+
+            /*
             for(const tile of this.tileMap.values()) {
                 if(tile.z < this.minTileZ) {
                     this.minTileZ = tile.z;
@@ -171,7 +187,7 @@ class Software7Engine {
                 if(tile.z > this.maxTileZ) {
                     this.maxTileZ = tile.z;
                 }
-            }
+            }*/
         }
 
         if(isNaN(this.minTileZ)) {
@@ -181,7 +197,9 @@ class Software7Engine {
         if(isNaN(this.maxTileZ)) {
             this.maxTileZ = 0;
         }
-        
+
+        console.log(this.minTileZ);
+        console.log(this.maxTileZ);
     }
 
     setTileReference(data) {
