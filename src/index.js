@@ -163,7 +163,7 @@ class Software7Engine {
         this.maxTileZ = 0;
 
         if(this.tileMap) {
-            for(const tile of this.tileMap) {
+            for(const tile of this.tileMap.values()) {
                 if(tile.z < this.minTileZ) {
                     this.minTileZ = tile.z;
                 }
