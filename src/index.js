@@ -173,6 +173,14 @@ class Software7Engine {
                 }
             }
         }
+
+        if(isNaN(this.minTileZ)) {
+            this.minTileZ = 0;
+        }
+
+        if(isNaN(this.maxTileZ)) {
+            this.maxTileZ = 0;
+        }
         
     }
 
