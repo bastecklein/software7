@@ -167,7 +167,10 @@ class Software7Engine {
 
             const instance = this;
 
-            this.tileMap.forEach(function(value, key) {
+            this.tileMap.forEach(function(value) {
+
+                console.log(value);
+
                 if(value.z < instance.minTileZ) {
                     instance.minTileZ = value.z;
                 }
@@ -176,18 +179,6 @@ class Software7Engine {
                     instance.maxTileZ = value.z;
                 }
             });
-
-
-            /*
-            for(const tile of this.tileMap.values()) {
-                if(tile.z < this.minTileZ) {
-                    this.minTileZ = tile.z;
-                }
-    
-                if(tile.z > this.maxTileZ) {
-                    this.maxTileZ = tile.z;
-                }
-            }*/
         }
 
         if(isNaN(this.minTileZ)) {
