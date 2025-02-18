@@ -297,6 +297,8 @@ class Sprite {
         this.texture = texture.name;
         
         this.instance = options.instance || null;
+
+        this.angle = options.angle || 0;
     }
 
     remove() {
@@ -329,7 +331,7 @@ class Texture {
         loadTexture(this);
     }
 
-    getCurrentFrame(camera) {
+    getCurrentFrame(camera, rotation) {
 
         if(this.directional) {
             const totFrames = this.images.length / 8;
@@ -345,6 +347,10 @@ class Texture {
         if(this.directional) {
             let angle = camera.angle;
 
+            if(rotation != undefined) {
+                angle += rotation;
+            }
+
             if(angle < 0) {
                 angle += MAX_ANGLE;
             }
@@ -355,7 +361,7 @@ class Texture {
             frame += angleFrame * 8;
         }
 
-        return this.images[frame];
+        return frame;
     }
 }
 
