@@ -334,6 +334,11 @@ function loadTexture(texture) {
         return;
     }
 
+    if(texture.url.toLowerCase().startsWith("<?xml")) {
+        loadSVGTexture(texture);
+        return;
+    }
+
     if(texture.url.toLowerCase().endsWith(".ppp")) {
         loadPixelPaintTexture(texture);
         return;
