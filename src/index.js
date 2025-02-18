@@ -213,6 +213,10 @@ class Software7Engine {
         this.sprites.push(sprite);
         return sprite;
     }
+
+    clearSprites() {
+        this.sprites = [];
+    }
 }
 
 class Software7Camera {
@@ -283,11 +287,15 @@ class Sprite {
         this.scaleX = options.scaleX || options.scale || 0.16;
         this.scaleY = options.scaleY || options.scale || 0.16;
 
-        const texture = getTexture(options.src, null);
+        const texture = getTexture(options.src, options.colorReplacements || [], options.autoFrame || true);
+
+        if(options.directional != undefined) {
+            texture.directional = options.directional;
+        }
 
         this.frame = -1;
         this.texture = texture.name;
-
+        
         this.instance = options.instance || null;
     }
 
@@ -310,15 +318,44 @@ class Texture {
         this.images = [];
         this.loaded = false;
         this.colorReplacements = options.colorReplacements || [];
-        this.name = getTextureName(this.url, this.colorReplacements);
         this.height = 0;
         this.width = 0;
         this.onLoad = options.onLoad || null;
         this.currentFrame = 0;
-        this.directional = options.directional || false;
         this.autoFrame = options.autoFrame || true;
+        this.name = getTextureName(this.url, this.colorReplacements, this.autoFrame);
+        this.directional = options.directional || false;
 
         loadTexture(this);
+    }
+
+    getCurrentFrame(camera) {
+
+        if(this.directional) {
+            const totFrames = this.images.length / 8;
+
+            if(this.frames != totFrames) {
+                this.frames = totFrames;
+                this.currentFrame = 0;
+            }
+        }
+
+        let frame = this.currentFrame;
+
+        if(this.directional) {
+            let angle = camera.angle;
+
+            if(angle < 0) {
+                angle += MAX_ANGLE;
+            }
+
+            const anglePer = angle / MAX_ANGLE;
+            const angleFrame = Math.floor(anglePer * this.frames);
+
+            frame += angleFrame * 8;
+        }
+
+        return this.images[frame];
     }
 }
 
@@ -566,7 +603,7 @@ function renderSprites(instance, camera, outputData, dirX, dirY) {
             continue;
         }
 
-        let txFrame = texture.currentFrame;
+        let txFrame = texture.getCurrentFrame(camera);
 
         if(sprite.frame != -1 && sprite.frame < texture.frames) {
             txFrame = sprite.frame;
@@ -746,8 +783,8 @@ function setImageDataColorAtCoordinate(data, x, y, color) {
     data.data[index + 3] = color.a;
 }
 
-export function getTextureName(url, colorReplacements) {
-    let name = url;
+export function getTextureName(url, colorReplacements, autoFrame = false) {
+    let name = hash(url);
 
     if(typeof name == "object" && name.createdApp && name.createdApp == "Pixel Paint") {
         name = hash(JSON.stringify(name));
@@ -761,6 +798,10 @@ export function getTextureName(url, colorReplacements) {
 
             name += "." + color + ":" + replaceColor;
         }
+    }
+
+    if(autoFrame) {
+        name += ".af";
     }
 
     return name;
@@ -886,7 +927,7 @@ function setInstanceTileReference(instance, id, src, colorReplacements) {
 }
 
 export function getTexture(url, colorReplacements, autoFrame = false) {
-    const texName = getTextureName(url, colorReplacements);
+    const texName = getTextureName(url, colorReplacements, autoFrame);
 
     if(!globalTextures[texName]) {
         globalTextures[texName] = new Texture({
