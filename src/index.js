@@ -331,7 +331,7 @@ class Texture {
         loadTexture(this);
     }
 
-    getCurrentFrame(camera, rotation) {
+    getCurrentFrame(camera, relativeSprite) {
 
         if(this.directional) {
             const totFrames = this.images.length / 8;
@@ -344,21 +344,27 @@ class Texture {
 
         let frame = this.currentFrame;
 
-        if(this.directional) {
-            let angle = camera.angle;
+        if(this.directional && relativeSprite != undefined) {
 
-            if(rotation != undefined) {
-                angle += rotation;
-            }
+            let angle = Math.atan2(relativeSprite.y - camera.y, relativeSprite.x - camera.x);
+            angle -= relativeSprite.angle;
 
             if(angle < 0) {
                 angle += MAX_ANGLE;
             }
 
-            const anglePer = angle / MAX_ANGLE;
-            const angleFrame = Math.floor(anglePer * this.frames);
+            if(angle > MAX_ANGLE) {
+                angle -= MAX_ANGLE;
+            }
 
-            frame += angleFrame * 8;
+            const anglePer = angle / MAX_ANGLE;
+            const angleFrame = Math.floor(anglePer * 8);
+
+            frame += angleFrame * this.frames;
+        }
+
+        if(frame >= this.frames) {
+            frame = 0;
         }
 
         return frame;
@@ -609,7 +615,7 @@ function renderSprites(instance, camera, outputData, dirX, dirY) {
             continue;
         }
 
-        let txFrame = texture.getCurrentFrame(camera);
+        let txFrame = texture.getCurrentFrame(camera, sprite);
 
         if(sprite.frame != -1 && sprite.frame < texture.frames) {
             txFrame = sprite.frame;
