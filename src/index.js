@@ -315,6 +315,8 @@ class Texture {
         this.width = 0;
         this.onLoad = options.onLoad || null;
         this.currentFrame = 0;
+        this.directional = options.directional || false;
+        this.autoFrame = options.autoFrame || true;
 
         loadTexture(this);
     }
@@ -351,6 +353,11 @@ function loadTexture(texture) {
 
     const image = new Image();
     image.onload = function() {
+
+        if(texture.autoFrame) {
+            texture.frames = Math.floor(image.width / image.height);
+        }
+
         framerizeImage(texture, image);
     };
     image.src = texture.url;
@@ -373,6 +380,11 @@ function loadSVGTexture(texture) {
     }
 
     getColoredSVG(texture.url, replacementInstructions).then(function(image) {
+
+        if(texture.autoFrame) {
+            texture.frames = Math.floor(image.width / image.height);
+        }
+
         framerizeImage(texture, image);
     });
 }
@@ -873,13 +885,14 @@ function setInstanceTileReference(instance, id, src, colorReplacements) {
     instance.tileReference[id] = texture.name;
 }
 
-export function getTexture(url, colorReplacements) {
+export function getTexture(url, colorReplacements, autoFrame = false) {
     const texName = getTextureName(url, colorReplacements);
 
     if(!globalTextures[texName]) {
         globalTextures[texName] = new Texture({
             url: url,
-            colorReplacements: colorReplacements
+            colorReplacements: colorReplacements,
+            autoFrame: autoFrame
         });
     }
 
